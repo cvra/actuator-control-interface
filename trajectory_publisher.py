@@ -36,3 +36,14 @@ class TrajectoryPublisher():
 
         elif isinstance(newtraj, Setpoint):
             self.trajectories[name] = newtraj
+
+
+def trajectory_merge(first, second):
+    start_index = int((second.start - first.start) / (first.dt))
+
+    points = first.points[:start_index] + second.points
+
+    start = min(first.start, second.start)
+
+    return Trajectory(start, first.dt, points)
+
