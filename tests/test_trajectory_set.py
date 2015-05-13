@@ -46,7 +46,34 @@ class TrajectoryTestingTestCase(unittest.TestCase):
 
         expected = WheelbaseTrajectory(0., dt, (1, 2, 10, 20, 30, 40))
 
-        self.assertEqual(pub.trajectories['base'], expected)
+        self.assertEqual(pub.trajectories['base'], expected),
+
+    def test_trajectory_set(self):
+        dt = 0.5
+        pub = TrajectoryPublisher()
+        t1 = Trajectory(0., dt, (1, 2, 3, 4))
+        t2 = Trajectory(1., dt, (10, 20, 30, 40))
+        pub.update_trajectory("base", t1)
+        pub.update_trajectory("base", t2)
+
+        expected = Trajectory(0., dt, (1, 2, 10, 20, 30, 40))
+
+        self.assertEqual(pub.trajectories['base'], expected),
+
+    def test_trajectory_set_setpoint_after_a_trajectory(self):
+        """
+        If we input a setpoint after a trajectory, it should immediately be
+        applied.
+        """
+        dt = 0.5
+        pub = TrajectoryPublisher()
+
+        t1 = Trajectory(0., dt, (1, 2, 3, 4))
+        t2 = PositionSetpoint(12)
+        pub.update_trajectory("base", t1)
+        pub.update_trajectory("base", t2)
+
+        self.assertEqual(pub.trajectories['base'], t2),
 
 
 

@@ -56,6 +56,10 @@ class TrajectoryPublisher():
         elif isinstance(newtraj, Setpoint):
             self.trajectories[name] = newtraj
 
+        elif isinstance(oldtraj, Trajectory):
+            self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
+
+
 
 def trajectory_merge(first, second):
     if first.dt != second.dt:
