@@ -39,6 +39,9 @@ class TrajectoryPublisher():
 
 
 def trajectory_merge(first, second):
+    if first.dt != second.dt:
+        raise ValueError("Can only merge trajectories with same samplerate.")
+
     start_index = int((second.start - first.start) / (first.dt))
 
     points = first.points[:start_index] + second.points

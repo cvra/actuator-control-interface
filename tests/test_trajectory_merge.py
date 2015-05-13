@@ -25,3 +25,14 @@ class TrajectoryMergingTestCase(unittest.TestCase):
         second = Trajectory(1. - dt, dt, (10, 20, 30))
         res = trajectory_merge(first, second)
         self.assertEqual(res, Trajectory(1. - dt, dt, (10, 20, 30)))
+
+    def test_wrong_dt_trajectories(self):
+        """
+        Checks that we raise the correct error when merging two trajectories
+        whose dt don't match.
+        """
+        first = Trajectory(0., 1., tuple())
+        second = Trajectory(0., 2., tuple())
+
+        with self.assertRaises(ValueError):
+            trajectory_merge(first, second)
