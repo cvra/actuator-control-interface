@@ -36,3 +36,18 @@ class TrajectoryMergingTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             trajectory_merge(first, second)
+
+    def test_after_end(self):
+        """
+        Checks that we correctly repeat the last point of the first trajectory
+        as padding until the start of the second one if needed.
+        """
+        first = Trajectory(0., 0.5, (1, 2, 3))
+        second = Trajectory(3., 0.5,  (10, 20, 30))
+
+        res = trajectory_merge(first, second)
+
+        self.assertEqual(res.start, 0.)
+        self.assertEqual(res.dt, 0.5)
+        padding = (3, 3, 3)
+        self.assertEqual(res.points, first.points + padding + second.points)
