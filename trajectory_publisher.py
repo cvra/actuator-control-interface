@@ -37,41 +37,40 @@ class TorqueSetpoint(Setpoint):
     pass
 
 
-class TrajectoryPublisher():
-    def __init__(self):
-        self.trajectories = dict()
+def update_trajectory(trajectories, name, newtraj):
+    """
+    Update the trajectories dictionnary with the given new traj.
+    """
+    if name not in trajectories:
+        trajectories[name] = newtraj
+        return
 
-    def update_trajectory(self, name, newtraj):
-        if name not in self.trajectories:
-            self.trajectories[name] = newtraj
-            return
+    oldtraj = trajectories[name]
 
-        oldtraj = self.trajectories[name]
+    if isinstance(oldtraj, WheelbaseTrajectory):
+        # If the old setpoint is a trajectory for the wheelbase, we can
+        # only merge it if the new trajectory is made for the wheelbase.
+        if not isinstance(newtraj, WheelbaseTrajectory):
+            raise ValueError("Wheelbase can only updated with Wheelbase")
 
-        if isinstance(oldtraj, WheelbaseTrajectory):
-            # If the old setpoint is a trajectory for the wheelbase, we can
-            # only merge it if the new trajectory is made for the wheelbase.
-            if not isinstance(newtraj, WheelbaseTrajectory):
-                raise ValueError("Wheelbase can only updated with Wheelbase")
+        trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
-            self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
+    elif isinstance(newtraj, Setpoint):
+        # If the new trajectory is a setpoint, apply it immediately.
+        # The motor board will generate a ramp
+        trajectories[name] = newtraj
 
-        elif isinstance(newtraj, Setpoint):
-            # If the new trajectory is a setpoint, apply it immediately.
-            # The motor board will generate a ramp
-            self.trajectories[name] = newtraj
+    elif isinstance(oldtraj, Trajectory):
+        # If the old was a trajectory, simply merge it
+        trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
-        elif isinstance(oldtraj, Trajectory):
-            # If the old was a trajectory, simply merge it
-            self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
-
-        elif isinstance(oldtraj, Setpoint):
-            # Finally, if the old was a setpoint, convert it into a trajectory,
-            # then merge it
-            start = time.time()
-            oldtraj = Trajectory.from_setpoint(oldtraj, start, newtraj.dt,
-                                               newtraj.start - start)
-            self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
+    elif isinstance(oldtraj, Setpoint):
+        # Finally, if the old was a setpoint, convert it into a trajectory,
+        # then merge it
+        start = time.time()
+        oldtraj = Trajectory.from_setpoint(oldtraj, start, newtraj.dt,
+                                           newtraj.start - start)
+        trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
 
 def trajectory_merge(first, second):

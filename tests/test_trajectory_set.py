@@ -8,33 +8,34 @@ except ImportError:
 
 class TrajectoryTestingTestCase(unittest.TestCase):
     def test_trajectory_publisher_is_empty(self):
-        pub = TrajectoryPublisher()
-        self.assertEqual({}, pub.trajectories)
+        trajectories = dict()
+        self.assertEqual({}, trajectories)
 
     def test_trajectory_update_empy(self):
-        pub = TrajectoryPublisher()
+        trajectories = dict()
         t = SpeedSetpoint(12.)
 
-        pub.update_trajectory("foo", t)
-        self.assertEqual(pub.trajectories['foo'], t)
+        update_trajectory(trajectories, "foo", t)
+        self.assertEqual(trajectories['foo'], t)
 
     def test_trajectory_update_setpoint(self):
-        pub = TrajectoryPublisher()
+        trajectories = dict()
         start, stop = PositionSetpoint(12.), PositionSetpoint(14.)
-        pub.update_trajectory('foo', start)
-        pub.update_trajectory('foo', stop)
-        self.assertEqual(pub.trajectories['foo'], stop)
+        update_trajectory(trajectories, 'foo', start)
+        update_trajectory(trajectories, 'foo', stop)
+        self.assertEqual(trajectories['foo'], stop)
 
     def test_trajectory_wheelbase_cannot_be_changed(self):
         """
-        Changed that wheelbase trajectories cannot be switched to something else.
+        Changed that wheelbase trajectories cannot be switched to something
+        else.
         """
-        pub = TrajectoryPublisher()
+        trajectories = dict()
         start = WheelbaseTrajectory(1., 1., tuple())
-        pub.update_trajectory("foo", start)
+        update_trajectory(trajectories, "foo", start)
 
         with self.assertRaises(ValueError):
-            pub.update_trajectory("foo", TorqueSetpoint(10.))
+            update_trajectory(trajectories, "foo", TorqueSetpoint(10.))
 
     def test_wheelbase_trajectory_set(self):
         """
@@ -44,25 +45,25 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         t1 = WheelbaseTrajectory(0., dt, (1, 2, 3, 4))
         t2 = WheelbaseTrajectory(1., dt, (10, 20, 30, 40))
 
-        pub = TrajectoryPublisher()
-        pub.update_trajectory("base", t1)
-        pub.update_trajectory("base", t2)
+        trajectories = dict()
+        update_trajectory(trajectories, "base", t1)
+        update_trajectory(trajectories, "base", t2)
 
         expected = WheelbaseTrajectory(0., dt, (1, 2, 10, 20, 30, 40))
 
-        self.assertEqual(pub.trajectories['base'], expected),
+        self.assertEqual(trajectories['base'], expected),
 
     def test_trajectory_set(self):
         dt = 0.5
-        pub = TrajectoryPublisher()
+        trajectories = dict()
         t1 = Trajectory(0., dt, (1, 2, 3, 4))
         t2 = Trajectory(1., dt, (10, 20, 30, 40))
-        pub.update_trajectory("base", t1)
-        pub.update_trajectory("base", t2)
+        update_trajectory(trajectories, "base", t1)
+        update_trajectory(trajectories, "base", t2)
 
         expected = Trajectory(0., dt, (1, 2, 10, 20, 30, 40))
 
-        self.assertEqual(pub.trajectories['base'], expected)
+        self.assertEqual(trajectories['base'], expected)
 
     def test_trajectory_set_setpoint_after_a_trajectory(self):
         """
@@ -70,14 +71,14 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         applied.
         """
         dt = 0.5
-        pub = TrajectoryPublisher()
+        trajectories = dict()
 
         t1 = Trajectory(0., dt, (1, 2, 3, 4))
         t2 = PositionSetpoint(12)
-        pub.update_trajectory("base", t1)
-        pub.update_trajectory("base", t2)
+        update_trajectory(trajectories, "base", t1)
+        update_trajectory(trajectories, "base", t2)
 
-        self.assertEqual(pub.trajectories['base'], t2)
+        self.assertEqual(trajectories['base'], t2)
 
     @patch('time.time')
     def test_setpoint_then_trajectory(self, now):
@@ -85,7 +86,7 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         Checks we can append a trajectory after a setpoint.
         """
         dt = 0.5
-        pub = TrajectoryPublisher()
+        trajectories = dict()
         p1 = PositionSetpoint(12)
 
         p1_new = TrajectoryPoint(12, 0, 0)
@@ -95,9 +96,9 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         traj = Trajectory(3., dt, (p2_new, ))
         expected = Trajectory(1., dt, (p1_new, ) * 4 + (p2_new, ))
 
-        pub.update_trajectory("base", p1)
-        pub.update_trajectory("base", traj)
-        self.assertEqual(pub.trajectories['base'], expected)
+        update_trajectory(trajectories, "base", p1)
+        update_trajectory(trajectories, "base", traj)
+        self.assertEqual(trajectories['base'], expected)
 
 
 
