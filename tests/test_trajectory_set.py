@@ -31,3 +31,22 @@ class TrajectoryTestingTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             pub.update_trajectory("foo", TorqueSetpoint(10.))
+
+    def test_wheelbase_trajectory_set(self):
+        """
+        Checks that we do merge the trajectory.
+        """
+        dt = 0.5
+        t1 = WheelbaseTrajectory(0., dt, (1, 2, 3, 4))
+        t2 = WheelbaseTrajectory(1., dt, (10, 20, 30, 40))
+
+        pub = TrajectoryPublisher()
+        pub.update_trajectory("base", t1)
+        pub.update_trajectory("base", t2)
+
+        expected = WheelbaseTrajectory(0., dt, (1, 2, 10, 20, 30, 40))
+
+        self.assertEqual(pub.trajectories['base'], expected)
+
+
+

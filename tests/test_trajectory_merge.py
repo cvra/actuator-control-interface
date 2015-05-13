@@ -51,3 +51,4 @@ class TrajectoryMergingTestCase(unittest.TestCase):
         self.assertEqual(res.dt, 0.5)
         padding = (3, 3, 3)
         self.assertEqual(res.points, first.points + padding + second.points)
+

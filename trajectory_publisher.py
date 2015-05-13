@@ -43,10 +43,15 @@ class TrajectoryPublisher():
     def update_trajectory(self, name, newtraj):
         if name not in self.trajectories:
             self.trajectories[name] = newtraj
+            return
 
-        elif isinstance(self.trajectories[name], WheelbaseTrajectory):
+        oldtraj = self.trajectories[name]
+
+        if isinstance(oldtraj, WheelbaseTrajectory):
             if not isinstance(newtraj, WheelbaseTrajectory):
                 raise ValueError("Wheelbase can only updated with Wheelbase")
+
+            self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
         elif isinstance(newtraj, Setpoint):
             self.trajectories[name] = newtraj
