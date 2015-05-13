@@ -15,13 +15,14 @@ The various setpoints are immutable to make them easier to copy / share.
     - Start date in UNIX format
     - Sampling interval
     - Tuple of `WheelbaseTrajectoryPoint`s, each containing `x`, `y` (position), `vx`, `vy` (speed) and `ax`, `ay` (acceleration).
-* `ActuatorSetpoint`: This is just the type used when one wants a fixed setpoint.
+* `Setpoint`: This is just the type used when one wants a fixed setpoint.
     Fields:
     - Value of the setpoint
-    - Type of the setpoint (Position, Speed or torque)
-* `ActuatorTrajectory` is used to perform trajectories with an actuator (e.g. Debra's arms).
+    This is a base class. User should rather use `PositionSetpoint`, `SpeedSetpoint, `TorqueSetpoint`.
+
+* `Trajectory` is used to perform trajectories with an actuator (e.g. Debra's arms).
     Fields:
-    - Tuple of `AcutatorTrajectoryPoint`s, each containing `position`, `speed`, `torque`.
+    - Tuple of `TrajectoryPoint`s, each containing `position`, `speed`, `torque`.
         If one field is not used it must be left zero.
     - Start date in UNIX format
     - Sampling interval
