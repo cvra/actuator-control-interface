@@ -1,4 +1,5 @@
 from collections import namedtuple
+import time
 
 WheelbaseTrajectoryPoint = namedtuple('WheelbaseTrajectoryPoint',
                                       ['x', 'y', 'vx', 'vy', 'ax', 'ay'])
@@ -59,6 +60,11 @@ class TrajectoryPublisher():
         elif isinstance(oldtraj, Trajectory):
             self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
+        elif isinstance(oldtraj, Setpoint):
+            start = time.time()
+            oldtraj = Trajectory.from_setpoint(oldtraj, start, newtraj.dt,
+                                               newtraj.start - start)
+            self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
 
 def trajectory_merge(first, second):

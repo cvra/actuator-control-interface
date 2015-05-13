@@ -1,5 +1,9 @@
 import unittest
 from trajectory_publisher import *
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 
 class TrajectoryTestingTestCase(unittest.TestCase):
@@ -58,7 +62,7 @@ class TrajectoryTestingTestCase(unittest.TestCase):
 
         expected = Trajectory(0., dt, (1, 2, 10, 20, 30, 40))
 
-        self.assertEqual(pub.trajectories['base'], expected),
+        self.assertEqual(pub.trajectories['base'], expected)
 
     def test_trajectory_set_setpoint_after_a_trajectory(self):
         """
@@ -73,7 +77,28 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         pub.update_trajectory("base", t1)
         pub.update_trajectory("base", t2)
 
-        self.assertEqual(pub.trajectories['base'], t2),
+        self.assertEqual(pub.trajectories['base'], t2)
+
+    @patch('time.time')
+    def test_setpoint_then_trajectory(self, now):
+        """
+        Checks we can append a trajectory after a setpoint.
+        """
+        dt = 0.5
+        pub = TrajectoryPublisher()
+        p1 = PositionSetpoint(12)
+
+        p1_new = TrajectoryPoint(12, 0, 0)
+        p2_new = TrajectoryPoint(14, 0, 0)
+
+        now.return_value = 1.
+        traj = Trajectory(3., dt, (p2_new, ))
+        expected = Trajectory(1., dt, (p1_new, ) * 4 + (p2_new, ))
+
+        pub.update_trajectory("base", p1)
+        pub.update_trajectory("base", traj)
+        self.assertEqual(pub.trajectories['base'], expected)
+
 
 
 
