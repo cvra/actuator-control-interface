@@ -49,18 +49,25 @@ class TrajectoryPublisher():
         oldtraj = self.trajectories[name]
 
         if isinstance(oldtraj, WheelbaseTrajectory):
+            # If the old setpoint is a trajectory for the wheelbase, we can
+            # only merge it if the new trajectory is made for the wheelbase.
             if not isinstance(newtraj, WheelbaseTrajectory):
                 raise ValueError("Wheelbase can only updated with Wheelbase")
 
             self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
         elif isinstance(newtraj, Setpoint):
+            # If the new trajectory is a setpoint, apply it immediately.
+            # The motor board will generate a ramp
             self.trajectories[name] = newtraj
 
         elif isinstance(oldtraj, Trajectory):
+            # If the old was a trajectory, simply merge it
             self.trajectories[name] = trajectory_merge(oldtraj, newtraj)
 
         elif isinstance(oldtraj, Setpoint):
+            # Finally, if the old was a setpoint, convert it into a trajectory,
+            # then merge it
             start = time.time()
             oldtraj = Trajectory.from_setpoint(oldtraj, start, newtraj.dt,
                                                newtraj.start - start)
