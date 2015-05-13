@@ -94,3 +94,15 @@ def trajectory_merge(first, second):
 
     return Trajectory(start, first.dt, points)
 
+def trajectory_gc(trajectory, date):
+    """
+    Frees up memory by deleting the part of trajectory after the given date.
+    """
+
+    skipped_points = int((date - trajectory.start) / trajectory.dt)
+    skipped_points = max(0, skipped_points)
+    date = max(date, trajectory.start)
+
+
+    return Trajectory(date, trajectory.dt, trajectory.points[skipped_points:])
+
