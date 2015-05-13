@@ -30,5 +30,9 @@ class TrajectoryPublisher():
         if name not in self.trajectories:
             self.trajectories[name] = newtraj
 
+        elif isinstance(self.trajectories[name], WheelbaseTrajectory):
+            if not isinstance(newtraj, WheelbaseTrajectory):
+                raise ValueError("Wheelbase can only updated with Wheelbase")
+
         elif isinstance(newtraj, Setpoint):
             self.trajectories[name] = newtraj
