@@ -38,40 +38,40 @@ class TorqueSetpoint(Setpoint):
     pass
 
 
-def update_actuator(trajectories, name, newtraj):
+def update_actuator(setpoints, name, new):
     """
-    Update the trajectories dictionnary with the given new traj.
+    Update the setpoints dictionnary with the given new traj.
     """
-    if name not in trajectories:
-        trajectories[name] = newtraj
+    if name not in setpoints:
+        setpoints[name] = new
         return
 
-    oldtraj = trajectories[name]
+    old = setpoints[name]
 
-    if isinstance(oldtraj, WheelbaseTrajectory):
+    if isinstance(old, WheelbaseTrajectory):
         # If the old setpoint is a trajectory for the wheelbase, we can
         # only merge it if the new trajectory is made for the wheelbase.
-        if not isinstance(newtraj, WheelbaseTrajectory):
+        if not isinstance(new, WheelbaseTrajectory):
             raise ValueError("Wheelbase can only updated with Wheelbase")
 
-        trajectories[name] = trajectory_merge(oldtraj, newtraj)
+        setpoints[name] = trajectory_merge(old, new)
 
-    elif isinstance(newtraj, Setpoint):
+    elif isinstance(new, Setpoint):
         # If the new trajectory is a setpoint, apply it immediately.
         # The motor board will generate a ramp
-        trajectories[name] = newtraj
+        setpoints[name] = new
 
-    elif isinstance(oldtraj, Trajectory):
+    elif isinstance(old, Trajectory):
         # If the old was a trajectory, simply merge it
-        trajectories[name] = trajectory_merge(oldtraj, newtraj)
+        setpoints[name] = trajectory_merge(old, new)
 
-    elif isinstance(oldtraj, Setpoint):
+    elif isinstance(old, Setpoint):
         # Finally, if the old was a setpoint, convert it into a trajectory,
         # then merge it
         start = time.time()
-        oldtraj = Trajectory.from_setpoint(oldtraj, start, newtraj.dt,
-                                           newtraj.start - start)
-        trajectories[name] = trajectory_merge(oldtraj, newtraj)
+        old = Trajectory.from_setpoint(old, start, new.dt,
+                                           new.start - start)
+        setpoints[name] = trajectory_merge(old, new)
 
 
 def trajectory_merge(first, second):
