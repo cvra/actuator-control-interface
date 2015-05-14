@@ -165,3 +165,11 @@ class ActuatorPublisher:
                 if isinstance(old, Setpoint):
                     continue
                 self.trajectories[name] = trajectory_gc(old, date)
+
+    def publish(self):
+        """
+        This method is responsible for sending out the different actuator
+        setpoints to the robot. It must be subclassed for every transport
+        (SimpleRPC, ROS, UART, whatever).
+        """
+        pass

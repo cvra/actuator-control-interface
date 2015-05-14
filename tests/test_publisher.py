@@ -51,5 +51,7 @@ class ActuatorPublisherTestCase(unittest.TestCase):
         pub.gc(6.)
         self.assertEqual(pub.trajectories['base'], p)
 
-
+    def test_publish_exists(self):
+        pub = ActuatorPublisher()
+        pub.publish()
 
