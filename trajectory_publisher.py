@@ -38,7 +38,7 @@ class TorqueSetpoint(Setpoint):
     pass
 
 
-def update_trajectory(trajectories, name, newtraj):
+def update_actuator(trajectories, name, newtraj):
     """
     Update the trajectories dictionnary with the given new traj.
     """
@@ -125,16 +125,26 @@ def trajectory_get_state(traj, date):
     return traj.points[index]
 
 
-class TrajectoryPublisher:
+class ActuatorPublisher:
+    """
+    This class encapsulates a trajectory collection (dict) in a thread safe
+    way. It is the only public API of the project, and should be subclassed to
+    implement various transports.
+    """
     def __init__(self):
         self.trajectories = {}
         self.lock = Lock()
 
-    def update_trajectory(self, name, newtraj):
+    def update_actuator(self, name, newtraj):
         with self.lock:
-            update_trajectory(self.trajectories, name, newtraj)
+            update_actuator(self.trajectories, name, newtraj)
 
     def get_state(self, name, date):
+        """
+        Gets the expected state of the actuator at a given date in the future.
+        Accessing a date in the past might trigger a KeyError if the trajectory
+        has already been garbage collected.
+        """
         with self.lock:
             traj = self.trajectories[name]
 

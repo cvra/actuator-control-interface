@@ -15,14 +15,14 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         trajectories = dict()
         t = SpeedSetpoint(12.)
 
-        update_trajectory(trajectories, "foo", t)
+        update_actuator(trajectories, "foo", t)
         self.assertEqual(trajectories['foo'], t)
 
     def test_trajectory_update_setpoint(self):
         trajectories = dict()
         start, stop = PositionSetpoint(12.), PositionSetpoint(14.)
-        update_trajectory(trajectories, 'foo', start)
-        update_trajectory(trajectories, 'foo', stop)
+        update_actuator(trajectories, 'foo', start)
+        update_actuator(trajectories, 'foo', stop)
         self.assertEqual(trajectories['foo'], stop)
 
     def test_trajectory_wheelbase_cannot_be_changed(self):
@@ -32,10 +32,10 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         """
         trajectories = dict()
         start = WheelbaseTrajectory(1., 1., tuple())
-        update_trajectory(trajectories, "foo", start)
+        update_actuator(trajectories, "foo", start)
 
         with self.assertRaises(ValueError):
-            update_trajectory(trajectories, "foo", TorqueSetpoint(10.))
+            update_actuator(trajectories, "foo", TorqueSetpoint(10.))
 
     def test_wheelbase_trajectory_set(self):
         """
@@ -46,8 +46,8 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         t2 = WheelbaseTrajectory(1., dt, (10, 20, 30, 40))
 
         trajectories = dict()
-        update_trajectory(trajectories, "base", t1)
-        update_trajectory(trajectories, "base", t2)
+        update_actuator(trajectories, "base", t1)
+        update_actuator(trajectories, "base", t2)
 
         expected = WheelbaseTrajectory(0., dt, (1, 2, 10, 20, 30, 40))
 
@@ -58,8 +58,8 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         trajectories = dict()
         t1 = Trajectory(0., dt, (1, 2, 3, 4))
         t2 = Trajectory(1., dt, (10, 20, 30, 40))
-        update_trajectory(trajectories, "base", t1)
-        update_trajectory(trajectories, "base", t2)
+        update_actuator(trajectories, "base", t1)
+        update_actuator(trajectories, "base", t2)
 
         expected = Trajectory(0., dt, (1, 2, 10, 20, 30, 40))
 
@@ -75,8 +75,8 @@ class TrajectoryTestingTestCase(unittest.TestCase):
 
         t1 = Trajectory(0., dt, (1, 2, 3, 4))
         t2 = PositionSetpoint(12)
-        update_trajectory(trajectories, "base", t1)
-        update_trajectory(trajectories, "base", t2)
+        update_actuator(trajectories, "base", t1)
+        update_actuator(trajectories, "base", t2)
 
         self.assertEqual(trajectories['base'], t2)
 
@@ -96,8 +96,8 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         traj = Trajectory(3., dt, (p2_new, ))
         expected = Trajectory(1., dt, (p1_new, ) * 4 + (p2_new, ))
 
-        update_trajectory(trajectories, "base", p1)
-        update_trajectory(trajectories, "base", traj)
+        update_actuator(trajectories, "base", p1)
+        update_actuator(trajectories, "base", traj)
         self.assertEqual(trajectories['base'], expected)
 
 
