@@ -1,4 +1,5 @@
 from collections import namedtuple
+from threading import Lock
 import time
 
 WheelbaseTrajectoryPoint = namedtuple('WheelbaseTrajectoryPoint',
@@ -113,3 +114,13 @@ def trajectory_to_chunks(traj, chunk_length):
         yield TrajType(traj.start + traj.dt * i,
                        traj.dt,
                        traj.points[i:i+chunk_length])
+
+
+class TrajectoryPublisher:
+    def __init__(self):
+        self.trajectories = {}
+        self.lock = Lock()
+
+    def update_trajectory(self, name, newtraj):
+        with self.lock:
+            update_trajectory(self.trajectories, name, newtraj)
