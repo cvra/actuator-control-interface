@@ -116,6 +116,15 @@ def trajectory_to_chunks(traj, chunk_length):
                        traj.points[i:i+chunk_length])
 
 
+def trajectory_get_state(traj, date):
+    index = round((date - traj.start) / traj.dt)
+
+    # If past the last point, return last point
+    index = min(index, len(traj.points) - 1)
+
+    return traj.points[index]
+
+
 class TrajectoryPublisher:
     def __init__(self):
         self.trajectories = {}
@@ -124,3 +133,12 @@ class TrajectoryPublisher:
     def update_trajectory(self, name, newtraj):
         with self.lock:
             update_trajectory(self.trajectories, name, newtraj)
+
+    def get_state(self, name, date):
+        with self.lock:
+            traj = self.trajectories[name]
+
+        if isinstance(traj, Setpoint):
+            return traj
+
+        return trajectory_get_state(traj, date)

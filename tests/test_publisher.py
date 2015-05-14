@@ -23,4 +23,17 @@ class TrajectoryPublisherTestCase(unittest.TestCase):
 
         self.assertEqual(traj, Trajectory(0., 1., (1, 10, 20, 30)))
 
+    def test_can_get_trajectory_point(self):
+        pub = TrajectoryPublisher()
+        pub.update_trajectory("base", Trajectory(0., 1., (1, 2, 3)))
+
+        state = pub.get_state("base", 1.4)
+        self.assertEqual(state, 2)
+
+    def test_can_get_sepoint(self):
+        pub = TrajectoryPublisher()
+
+        pub.update_trajectory("base", PositionSetpoint(10))
+        state = pub.get_state("base", 1.4)
+        self.assertEqual(state, PositionSetpoint(10))
 
