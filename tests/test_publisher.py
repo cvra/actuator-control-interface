@@ -37,3 +37,19 @@ class ActuatorPublisherTestCase(unittest.TestCase):
         state = pub.get_state("base", 1.4)
         self.assertEqual(state, PositionSetpoint(10))
 
+    def test_can_gc(self):
+        pub = ActuatorPublisher()
+        traj = Trajectory(4., 1., (1, 2, 3, 4))
+        pub.update_actuator("base", traj)
+        pub.gc(6.)
+        self.assertEqual(pub.trajectories['base'].points, (3, 4))
+
+    def test_dont_gc_setpoint(self):
+        pub = ActuatorPublisher()
+        p = PositionSetpoint(10)
+        pub.update_actuator("base", p)
+        pub.gc(6.)
+        self.assertEqual(pub.trajectories['base'], p)
+
+
+

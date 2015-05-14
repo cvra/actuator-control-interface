@@ -101,11 +101,13 @@ def trajectory_gc(trajectory, date):
     Frees up memory by deleting the part of trajectory after the given date.
     """
 
+
     skipped_points = int((date - trajectory.start) / trajectory.dt)
     skipped_points = max(0, skipped_points)
     date = max(date, trajectory.start)
 
-    return Trajectory(date, trajectory.dt, trajectory.points[skipped_points:])
+    TrajectoryType = type(trajectory)
+    return TrajectoryType(date, trajectory.dt, trajectory.points[skipped_points:])
 
 
 def trajectory_to_chunks(traj, chunk_length):
@@ -152,3 +154,14 @@ class ActuatorPublisher:
             return traj
 
         return trajectory_get_state(traj, date)
+
+    def gc(self, date):
+        """
+        Tries to free some memory by deleting all trajectory points before
+        the given date.
+        """
+        with self.lock:
+            for name, old in self.trajectories.items():
+                if isinstance(old, Setpoint):
+                    continue
+                self.trajectories[name] = trajectory_gc(old, date)
