@@ -94,6 +94,7 @@ def trajectory_merge(first, second):
 
     return Trajectory(start, first.dt, points)
 
+
 def trajectory_gc(trajectory, date):
     """
     Frees up memory by deleting the part of trajectory after the given date.
@@ -103,6 +104,12 @@ def trajectory_gc(trajectory, date):
     skipped_points = max(0, skipped_points)
     date = max(date, trajectory.start)
 
-
     return Trajectory(date, trajectory.dt, trajectory.points[skipped_points:])
 
+
+def trajectory_to_chunks(traj, chunk_length):
+    TrajType = type(traj)
+    for i in range(0, len(traj.points), chunk_length):
+        yield TrajType(traj.start + traj.dt * i,
+                       traj.dt,
+                       traj.points[i:i+chunk_length])
