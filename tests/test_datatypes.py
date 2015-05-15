@@ -19,7 +19,9 @@ class TrajectoryTestCase(unittest.TestCase):
     def test_can_create_trajectory(self):
         p = TrajectoryPoint(position=1.,
                             speed=2.,
-                            torque=10.)
+                            torque=10.,
+                            acceleration=42.
+                            )
 
         Trajectory(start=1, dt=1e-3,
                    points=(p,))
@@ -39,17 +41,17 @@ class TrajectoryTestCase(unittest.TestCase):
         Check that we can create a trajectory from a position setpoint.
         """
         p = PositionSetpoint(12)
-        pp = TrajectoryPoint(12, 0, 0)
+        pp = TrajectoryPoint(12, 0, 0, 0)
         self.check_trajectories_created_from_setpoints(p, pp)
 
     def test_can_create_from_speed_setpoint(self):
         p = SpeedSetpoint(12)
-        pp = TrajectoryPoint(0, 12, 0)
+        pp = TrajectoryPoint(0, 12, 0, 0)
         self.check_trajectories_created_from_setpoints(p, pp)
 
     def test_can_create_from_torque_setpoint(self):
         p = TorqueSetpoint(12)
-        pp = TrajectoryPoint(0, 0, 12)
+        pp = TrajectoryPoint(0, 0, 0, 12)
         self.check_trajectories_created_from_setpoints(p, pp)
 
 

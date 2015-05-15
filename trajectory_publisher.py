@@ -7,17 +7,17 @@ WheelbaseTrajectoryPoint = namedtuple('WheelbaseTrajectoryPoint',
 WheelbaseTrajectory = namedtuple('WheelbaseTrajectory',
                                  ['start', 'dt', 'points'])
 TrajectoryPoint = namedtuple('TrajectoryPoint',
-                             ['position', 'speed', 'torque'])
+                             ['position', 'speed', 'acceleration', 'torque'])
 
 class Trajectory(namedtuple('Trajectory', ['start', 'dt', 'points'])):
     @classmethod
     def from_setpoint(cls, point, start, dt, duration):
         if isinstance(point, PositionSetpoint):
-            point = TrajectoryPoint(point.value, 0, 0)
+            point = TrajectoryPoint(point.value, 0, 0, 0)
         elif isinstance(point, SpeedSetpoint):
-            point = TrajectoryPoint(0, point.value, 0)
+            point = TrajectoryPoint(0, point.value, 0, 0)
         elif isinstance(point, TorqueSetpoint):
-            point = TrajectoryPoint(0, 0, point.value)
+            point = TrajectoryPoint(0, 0, 0, point.value)
 
         length = int(duration / dt)
 

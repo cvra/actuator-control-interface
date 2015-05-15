@@ -89,8 +89,8 @@ class TrajectoryTestingTestCase(unittest.TestCase):
         trajectories = dict()
         p1 = PositionSetpoint(12)
 
-        p1_new = TrajectoryPoint(12, 0, 0)
-        p2_new = TrajectoryPoint(14, 0, 0)
+        p1_new = TrajectoryPoint(12, 0, 0, 0)
+        p2_new = TrajectoryPoint(14, 0, 0, 0)
 
         now.return_value = 1.
         traj = Trajectory(3., dt, (p2_new, ))
