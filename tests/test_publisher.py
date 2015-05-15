@@ -1,4 +1,11 @@
 import unittest
+import math
+
+try:
+    from unittest.mock import patch, ANY
+except ImportError:
+    from mock import patch, ANY
+
 from trajectory_publisher import *
 
 class ActuatorPublisherTestCase(unittest.TestCase):
@@ -53,5 +60,51 @@ class ActuatorPublisherTestCase(unittest.TestCase):
 
     def test_publish_exists(self):
         pub = ActuatorPublisher()
-        pub.publish()
+        pub.publish(date=10.)
+
+
+class SimpleRPCPublisherTestCase(unittest.TestCase):
+    def setUp(self):
+        self.pub = SimpleRPCActuatorPublisher(('localhost', 20000))
+
+    def test_create(self):
+        self.assertEqual(self.pub.trajectories, {})
+        self.assertEqual(self.pub.target, ('localhost', 20000))
+
+    def test_publish_positionpoint(self):
+        self.pub.update_actuator('foo', PositionSetpoint(10.))
+
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=10.)
+            send.assert_any_call(self.pub.target, 'actuator_position', ['foo', 10.])
+
+    def test_publish_speed(self):
+        self.pub.update_actuator('foo', SpeedSetpoint(10.))
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=10.)
+            send.assert_any_call(self.pub.target, 'actuator_velocity', ['foo', 10.])
+
+    def test_publish_torque(self):
+        self.pub.update_actuator('foo', TorqueSetpoint(10.))
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=10.)
+            send.assert_any_call(self.pub.target, 'actuator_torque', ['foo', 10.])
+
+    def test_publish_chunk(self):
+        traj = Trajectory(0.01, dt=0.5,
+                          points=tuple(TrajectoryPoint(float(i), 10.,
+                                                       acceleration=20.,
+                                                       torque=30.)
+                                       for i in range(100)))
+
+        self.pub.update_actuator('foo', traj)
+
+        expected_points = [[float(i), 10., 20., 30.] for i in range(20, 30)]
+
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=10.)
+            # 9999 instead of 10000 us because of rounding error
+            send.assert_any_call(self.pub.target, 'actuator_trajectory',
+                                 ['foo', 10, 9999, expected_points])
+
 

@@ -1,4 +1,5 @@
 from collections import namedtuple
+import cvra_rpc.message
 from threading import Lock
 import time
 
@@ -166,10 +167,49 @@ class ActuatorPublisher:
                     continue
                 self.trajectories[name] = trajectory_gc(old, date)
 
-    def publish(self):
+    def publish(self, date):
         """
         This method is responsible for sending out the different actuator
         setpoints to the robot. It must be subclassed for every transport
         (SimpleRPC, ROS, UART, whatever).
         """
         pass
+
+class SimpleRPCActuatorPublisher(ActuatorPublisher):
+    """
+    This class implements actuator setpoint publishing via simple RPC.
+    """
+    def __init__(self, target, *args, **kwargs):
+        """
+        Constructor. Target is a tuple (host, port) describing where the
+        SimpleRPC commands should be sent.
+        """
+        super().__init__(*args, **kwargs)
+        self.target = target
+
+    def publish(self, date):
+        commands = {PositionSetpoint: 'actuator_position',
+                    SpeedSetpoint: 'actuator_velocity',
+                    TorqueSetpoint: 'actuator_torque'}
+
+        for name, setpoint in self.trajectories.items():
+            if isinstance(setpoint, Setpoint):
+                command = commands[type(setpoint)]
+                cvra_rpc.message.send(self.target, command, [name, setpoint.value])
+
+            elif isinstance(setpoint, Trajectory):
+                # Convert the trajectory to chunks, then select the first one
+                # still in the future.
+                chunks = trajectory_to_chunks(setpoint, 10)
+                chunk = next(chunks)
+                while chunk.start < date:
+                    chunk = next(chunks)
+
+                points = [[p.position, p.speed, p.acceleration, p.torque] for p in chunk.points]
+
+                start_s = int(chunk.start)
+                start_us = int((chunk.start - start_s) * 1e6)
+
+                cvra_rpc.message.send(self.target, 'actuator_trajectory',
+                                      [name, start_s, start_us, points])
+
