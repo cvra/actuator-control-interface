@@ -107,4 +107,30 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
             send.assert_any_call(self.pub.target, 'actuator_trajectory',
                                  ['foo', 10, 9999, expected_points])
 
+    def test_publish_wheelbase(self):
+        traj = WheelbaseTrajectory(0., dt=0.5, points=tuple([
+            # This settings make omega = 2
+                                   WheelbaseTrajectoryPoint(0., 0., # pos
+                                                            0., 2., # spd
+                                                            -4., 0.) # acc
+                                   ]))
+
+        self.pub.update_actuator('base', traj)
+
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=0.)
+            send.assert_any_call(self.pub.target, 'wheelbase_trajectory', ANY)
+
+            _, _, args = send.call_args[0]
+
+            s, us, points = args
+
+            x, y, v, theta, omega = tuple(points[0])
+
+            self.assertAlmostEqual(x, 0.)
+            self.assertAlmostEqual(y, 0.)
+            self.assertAlmostEqual(v, 2.)
+            self.assertAlmostEqual(theta, math.pi / 2)
+            self.assertAlmostEqual(theta, math.pi / 2)
+            self.assertAlmostEqual(omega, 2.)
 
