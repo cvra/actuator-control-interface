@@ -6,7 +6,7 @@ class WheelbaseTrajectoryTestCase(unittest.TestCase):
     def test_can_create_trajectory(self):
         p = WheelbaseTrajectoryPoint(1., 2.,
                                      3., 4.,
-                                     5., 6.)
+                                     5.)
 
         traj = WheelbaseTrajectory(1., 1e-3, (p, ))
 
