@@ -1,5 +1,6 @@
 import unittest
 import math
+from decimal import Decimal
 
 try:
     from unittest.mock import patch, ANY
@@ -64,6 +65,7 @@ class ActuatorPublisherTestCase(unittest.TestCase):
 
 
 class SimpleRPCPublisherTestCase(unittest.TestCase):
+    dt = Decimal(1) / Decimal(100)
     def setUp(self):
         self.pub = SimpleRPCActuatorPublisher(('localhost', 20000))
 
@@ -91,7 +93,7 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
             send.assert_any_call(self.pub.target, 'actuator_torque', ['foo', 10.])
 
     def test_publish_chunk(self):
-        traj = Trajectory(0.01, dt=0.5,
+        traj = Trajectory(10., dt=self.dt,
                           points=tuple(TrajectoryPoint(float(i), 10.,
                                                        acceleration=20.,
                                                        torque=30.)
@@ -102,13 +104,20 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
         expected_points = [[float(i), 10., 20., 30.] for i in range(20, 30)]
 
         with patch('cvra_rpc.message.send') as send:
-            self.pub.publish(date=10.)
-            # 9999 instead of 10000 us because of rounding error
-            send.assert_any_call(self.pub.target, 'actuator_trajectory',
-                                 ['foo', 10, 9999, expected_points])
+            self.pub.publish(date=10.2)
+            self.assertTrue(send.called)
+            target, name, args = tuple(send.call_args[0])
+            self.assertEqual(target, self.pub.target)
+            self.assertEqual(name, 'actuator_trajectory')
+
+            _, start_s, start_us, dt_us, points = tuple(args)
+            self.assertEqual(10, start_s)
+            self.assertAlmostEqual(0.2, start_us / 1e6, 3)
+            self.assertEqual(10*1000, dt_us)
+            self.assertEqual(points, expected_points)
 
     def test_publish_wheelbase(self):
-        traj = WheelbaseTrajectory(0., dt=0.5, points=tuple([
+        traj = WheelbaseTrajectory(0.2, dt=self.dt, points=tuple([
             # This settings make omega = 2
                                    WheelbaseTrajectoryPoint(0., 0., # pos
                                                             2., # spd
@@ -124,9 +133,13 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
 
             _, _, args = send.call_args[0]
 
-            s, us, points = args
+            s, us, dt, points = args
 
             x, y, v, theta, omega = tuple(points[0])
+
+            self.assertEqual(0, s)
+            self.assertAlmostEqual(us / 1e6, 0.2)
+            self.assertEqual(dt, 10000)
 
             self.assertAlmostEqual(x, 0.)
             self.assertAlmostEqual(y, 0.)

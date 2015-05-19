@@ -115,7 +115,7 @@ def trajectory_gc(trajectory, date):
 def trajectory_to_chunks(traj, chunk_length):
     TrajType = type(traj)
     for i in range(0, len(traj.points), chunk_length):
-        yield TrajType(traj.start + traj.dt * i,
+        yield TrajType(traj.start + float(traj.dt * i),
                        traj.dt,
                        traj.points[i:i+chunk_length])
 
@@ -210,19 +210,22 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
 
                 start_s = int(chunk.start)
                 start_us = int((chunk.start - start_s) * 1e6)
+                dt_us = int(chunk.dt * 1000000)
 
                 cvra_rpc.message.send(self.target, 'actuator_trajectory',
-                                      [name, start_s, start_us, points])
+                                      [name, start_s, start_us, dt_us, points])
 
             elif isinstance(setpoint, WheelbaseTrajectory):
                 chunks = trajectory_to_chunks(setpoint, 10)
                 chunk = next(chunks)
+
                 while chunk.start < date:
                     chunk = next(chunks)
 
                 start_s = int(chunk.start)
                 start_us = int((chunk.start - start_s) * 1e6)
+                dt_us = int(chunk.dt * 1000000)
 
                 cvra_rpc.message.send(self.target,
                                       'wheelbase_trajectory',
-                                      [start_s, start_us, chunk.points])
+                                      [start_s, start_us, dt_us, chunk.points])
