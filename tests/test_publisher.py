@@ -6,7 +6,7 @@ try:
 except ImportError:
     from mock import patch, ANY
 
-from trajectory_publisher import *
+from cvra_actuatorpub.trajectory_publisher import *
 
 class ActuatorPublisherTestCase(unittest.TestCase):
     def test_can_create(self):
