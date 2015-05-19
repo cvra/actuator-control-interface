@@ -1,5 +1,5 @@
 import unittest
-from trajectory_publisher import *
+from cvra_actuatorpub.trajectory_publisher import *
 
 
 class TrajectoryGarbageCollectorTestCase(unittest.TestCase):
