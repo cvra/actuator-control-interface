@@ -5,7 +5,7 @@ import time
 import math
 
 WheelbaseTrajectoryPoint = namedtuple('WheelbaseTrajectoryPoint',
-                                      ['x', 'y', 'vx', 'vy', 'ax', 'ay'])
+                                      ['x', 'y', 'v', 'theta', 'omega'])
 WheelbaseTrajectory = namedtuple('WheelbaseTrajectory',
                                  ['start', 'dt', 'points'])
 TrajectoryPoint = namedtuple('TrajectoryPoint',
@@ -220,21 +220,9 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
                 while chunk.start < date:
                     chunk = next(chunks)
 
-                points = []
-                for p in chunk.points:
-                    # Equation 8 of tracy's paper
-                    speed = math.sqrt(p.vx ** 2 + p.vy ** 2)
-                    if speed > 1e-3:
-                        omega = (p.vx * p.ax - p.vy * p.ax)
-                        omega = omega / speed ** 2
-                    else:
-                        omega = 0
-
-                    points.append((p.x, p.y,
-                                   speed, math.atan2(p.vy, p.vx),
-                                   omega))
-
                 start_s = int(chunk.start)
                 start_us = int((chunk.start - start_s) * 1e6)
 
-                cvra_rpc.message.send(self.target, 'wheelbase_trajectory', [start_s, start_us, points])
+                cvra_rpc.message.send(self.target,
+                                      'wheelbase_trajectory',
+                                      [start_s, start_us, chunk.points])
