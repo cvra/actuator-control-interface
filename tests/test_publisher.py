@@ -111,8 +111,9 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
         traj = WheelbaseTrajectory(0., dt=0.5, points=tuple([
             # This settings make omega = 2
                                    WheelbaseTrajectoryPoint(0., 0., # pos
-                                                            0., 2., # spd
-                                                            -4., 0.) # acc
+                                                            2., # spd
+                                                            math.pi / 2, # theta
+                                                            2.) # omega
                                    ]))
 
         self.pub.update_actuator('base', traj)
