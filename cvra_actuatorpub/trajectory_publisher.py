@@ -205,8 +205,12 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
                 # still in the future.
                 chunks = trajectory_to_chunks(setpoint, 10)
                 chunk = next(chunks)
-                while chunk.start < date:
-                    chunk = next(chunks)
+
+                try:
+                    while chunk.start < date:
+                        chunk = next(chunks)
+                except StopIteration:
+                    continue
 
                 points = [[p.position, p.speed, p.acceleration, p.torque] for p in chunk.points]
 
