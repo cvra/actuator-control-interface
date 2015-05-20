@@ -83,12 +83,12 @@ def trajectory_merge(first, second):
     dt = first.dt
 
     # Small helper function to convert second to a discreet number of samples
-    seconds_to_samples = lambda t: int(t / dt)
+    seconds_to_samples = lambda t: int(t / float(dt))
 
     start_index = seconds_to_samples(second.start - first.start)
 
     # Repeat last point of first trajectory until the start of the second
-    padding_len = second.start - (first.start + dt * len(first.points))
+    padding_len = second.start - (first.start + float(dt) * len(first.points))
     padding = first.points[-1:] * seconds_to_samples(padding_len)
 
     points = first.points[:start_index] + padding + second.points
