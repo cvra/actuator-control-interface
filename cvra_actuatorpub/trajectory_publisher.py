@@ -204,22 +204,26 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
                 # Convert the trajectory to chunks, then select the first one
                 # still in the future.
                 chunks = trajectory_to_chunks(setpoint, 10)
-                chunk = next(chunks)
 
-                try:
+                try:  # Send the trajectory if we are before the end of the trajectory.
+                    chunk = next(chunks)
                     while chunk.start < date:
                         chunk = next(chunks)
+                    points = [[p.position, p.speed, p.acceleration, p.torque] for p in chunk.points]
+
+                    start_s = int(chunk.start)
+                    start_us = int((chunk.start - start_s) * 1e6)
+                    dt_us = int(chunk.dt * 1000000)
+
+                    cvra_rpc.message.send(self.target, 'actuator_trajectory',
+                                          [name, start_s, start_us, dt_us, points])
+
                 except StopIteration:
-                    continue
+                    # If we are past the end of the trajectory, replace it by a position setpoint
+                    setpoint = setpoint.points[-1].position
+                    command = commands[PositionSetpoint]
+                    cvra_rpc.message.send(self.target, command, [name, setpoint])
 
-                points = [[p.position, p.speed, p.acceleration, p.torque] for p in chunk.points]
-
-                start_s = int(chunk.start)
-                start_us = int((chunk.start - start_s) * 1e6)
-                dt_us = int(chunk.dt * 1000000)
-
-                cvra_rpc.message.send(self.target, 'actuator_trajectory',
-                                      [name, start_s, start_us, dt_us, points])
 
             elif isinstance(setpoint, WheelbaseTrajectory):
                 chunks = trajectory_to_chunks(setpoint, 10)

@@ -159,3 +159,16 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
             self.pub.publish(date=1000.)
             self.assertFalse(send.called)
 
+    def test_publish_trajectory_past_end(self):
+        """
+        Checks that we can publish past the end of the trajectory.
+        """
+        points = [TrajectoryPoint(float(i), 0., 0., 0.) for i in range(10)]
+        traj = Trajectory(0.2, self.dt, points=tuple(points))
+        self.pub.update_actuator('foo', traj)
+
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=1000.)
+            send.assert_any_call(self.pub.target, 'actuator_position', ['foo', 9.])
+
+
