@@ -148,3 +148,14 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
             self.assertAlmostEqual(theta, math.pi / 2)
             self.assertAlmostEqual(omega, 2.)
 
+    def test_publish_wheelbase_past_trajectory_end(self):
+        """
+        Checks that nothing happens when we publish past the end of the
+        trajectory.
+        """
+        traj = WheelbaseTrajectory(0.2, dt=self.dt, points=(1, 2, 3))
+        self.pub.update_actuator('base', traj)
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=1000.)
+            self.assertFalse(send.called)
+

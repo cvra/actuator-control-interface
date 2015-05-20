@@ -223,9 +223,9 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
 
             elif isinstance(setpoint, WheelbaseTrajectory):
                 chunks = trajectory_to_chunks(setpoint, 10)
-                chunk = next(chunks)
 
                 try:
+                    chunk = next(chunks)
                     while chunk.start < date:
                         chunk = next(chunks)
                 except StopIteration:
