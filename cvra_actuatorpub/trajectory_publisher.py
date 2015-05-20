@@ -123,7 +123,7 @@ def trajectory_to_chunks(traj, chunk_length):
 
 
 def trajectory_get_state(traj, date):
-    index = round((date - traj.start) / traj.dt)
+    index = round((date - traj.start) / float(traj.dt))
 
     # If past the last point, return last point
     index = min(index, len(traj.points) - 1)

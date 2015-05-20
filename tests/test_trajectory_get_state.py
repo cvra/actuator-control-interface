@@ -1,4 +1,5 @@
 import unittest
+from decimal import Decimal
 from cvra_actuatorpub.trajectory_publisher import *
 
 class TrajectoryGetStateTestCase(unittest.TestCase):
@@ -12,5 +13,10 @@ class TrajectoryGetStateTestCase(unittest.TestCase):
     def test_trajectory_get_state_after(self):
         t = Trajectory(0., 0.5, (1, 2, 3))
         self.assertEqual(trajectory_get_state(t, 10.), 3)
+
+    def test_traject_get_state_dt_is_decimal(self):
+        t = Trajectory(0., Decimal('0.5'), (1, 2, 3))
+        self.assertEqual(trajectory_get_state(t, 10.), 3)
+
 
 
