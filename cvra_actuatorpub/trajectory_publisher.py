@@ -95,7 +95,9 @@ def trajectory_merge(first, second):
 
     start = min(first.start, second.start)
 
-    return Trajectory(start, first.dt, points)
+    TrajectoryType = type(first)
+
+    return TrajectoryType(start, first.dt, points)
 
 
 def trajectory_gc(trajectory, date):

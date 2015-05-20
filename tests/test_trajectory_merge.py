@@ -52,3 +52,11 @@ class TrajectoryMergingTestCase(unittest.TestCase):
         padding = (3, 3, 3)
         self.assertEqual(res.points, first.points + padding + second.points)
 
+    def test_return_correct_type(self):
+        first = WheelbaseTrajectory(0., 0.5, (1, 2, 3))
+        second = WheelbaseTrajectory(3., 0.5,  (10, 20, 30))
+
+        res = trajectory_merge(first, second)
+
+        self.assertIsInstance(res, WheelbaseTrajectory)
+
