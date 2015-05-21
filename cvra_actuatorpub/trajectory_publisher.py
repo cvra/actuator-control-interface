@@ -2,7 +2,7 @@ from collections import namedtuple
 import cvra_rpc.message
 from threading import Lock
 import time
-import math
+import logging
 
 WheelbaseTrajectoryPoint = namedtuple('WheelbaseTrajectoryPoint',
                                       ['x', 'y', 'v', 'theta', 'omega'])
@@ -106,7 +106,7 @@ def trajectory_gc(trajectory, date):
     """
 
 
-    skipped_points = int((date - trajectory.start) / trajectory.dt)
+    skipped_points = int((date - trajectory.start) / float(trajectory.dt))
     skipped_points = max(0, skipped_points)
     date = max(date, trajectory.start)
 
@@ -199,6 +199,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
             if isinstance(setpoint, Setpoint):
                 command = commands[type(setpoint)]
                 cvra_rpc.message.send(self.target, command, [name, setpoint.value])
+                logging.debug("Sending {}".format(setpoint))
 
             elif isinstance(setpoint, Trajectory):
                 # Convert the trajectory to chunks, then select the first one
@@ -238,6 +239,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
                 start_s = int(chunk.start)
                 start_us = int((chunk.start - start_s) * 1e6)
                 dt_us = int(chunk.dt * 1000000)
+
 
                 cvra_rpc.message.send(self.target,
                                       'wheelbase_trajectory',

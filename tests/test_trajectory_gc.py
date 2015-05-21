@@ -1,5 +1,6 @@
 import unittest
 from cvra_actuatorpub.trajectory_publisher import *
+from decimal import Decimal
 
 
 class TrajectoryGarbageCollectorTestCase(unittest.TestCase):
@@ -24,5 +25,11 @@ class TrajectoryGarbageCollectorTestCase(unittest.TestCase):
         traj = trajectory_gc(traj, 1.)
         self.assertIsInstance(traj, WheelbaseTrajectory)
         self.assertEqual(traj, WheelbaseTrajectory(1., 0.5, (3, 4)))
+
+    def test_gc_decimal(self):
+        dt = Decimal('0.5')
+        traj = WheelbaseTrajectory(0., dt=dt, points=(1, 2, 3, 4))
+        traj = trajectory_gc(traj, 1.)
+        self.assertEqual(traj, WheelbaseTrajectory(1., dt, (3, 4)))
 
 
