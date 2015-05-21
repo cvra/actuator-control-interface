@@ -108,7 +108,9 @@ def trajectory_gc(trajectory, date):
 
     skipped_points = int((date - trajectory.start) / float(trajectory.dt))
     skipped_points = max(0, skipped_points)
+    skipped_points = min(skipped_points, len(trajectory.points) - 1)
     date = max(date, trajectory.start)
+    date = min(date, trajectory.start + skipped_points * float(trajectory.dt))
 
     TrajectoryType = type(trajectory)
     return TrajectoryType(date, trajectory.dt, trajectory.points[skipped_points:])

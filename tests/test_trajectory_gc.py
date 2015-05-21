@@ -32,4 +32,8 @@ class TrajectoryGarbageCollectorTestCase(unittest.TestCase):
         traj = trajectory_gc(traj, 1.)
         self.assertEqual(traj, WheelbaseTrajectory(1., dt, (3, 4)))
 
-
+    def test_gc_keeps_at_least_one_element(self):
+        dt = Decimal('0.5')
+        traj = WheelbaseTrajectory(0., dt=dt, points=(1, 2, 3, 4))
+        traj = trajectory_gc(traj, 10.)
+        self.assertEqual(traj, WheelbaseTrajectory(1.5, dt, (4, )))
