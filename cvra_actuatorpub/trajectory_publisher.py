@@ -229,6 +229,8 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
             elif isinstance(setpoint, WheelbaseTrajectory):
                 chunks = trajectory_to_chunks(setpoint, 10)
 
+                # If we are past the end of the trajectory, we should not send
+                # anything to the master board, which will stop the robot.
                 try:
                     chunk = next(chunks)
                     while chunk.start < date:
