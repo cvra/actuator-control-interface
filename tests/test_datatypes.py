@@ -60,4 +60,5 @@ class SetpointTestCase(unittest.TestCase):
         PositionSetpoint(12)
         SpeedSetpoint(12)
         TorqueSetpoint(12)
+        VoltageSetpoint(12)
 

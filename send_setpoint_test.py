@@ -1,6 +1,6 @@
 from cvra_rpc.service_call import call
 import argparse
-from trajectory_publisher import *
+from cvra_actuatorpub.trajectory_publisher import *
 import time
 
 

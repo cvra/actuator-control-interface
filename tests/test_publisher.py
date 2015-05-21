@@ -86,6 +86,12 @@ class SimpleRPCPublisherTestCase(unittest.TestCase):
             self.pub.publish(date=10.)
             send.assert_any_call(self.pub.target, 'actuator_velocity', ['foo', 10.])
 
+    def test_publish_voltage(self):
+        self.pub.update_actuator('foo', VoltageSetpoint(10.))
+        with patch('cvra_rpc.message.send') as send:
+            self.pub.publish(date=10.)
+            send.assert_any_call(self.pub.target, 'actuator_voltage', ['foo', 10.])
+
     def test_publish_torque(self):
         self.pub.update_actuator('foo', TorqueSetpoint(10.))
         with patch('cvra_rpc.message.send') as send:

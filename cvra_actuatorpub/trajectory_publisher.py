@@ -39,6 +39,9 @@ class SpeedSetpoint(Setpoint):
 class TorqueSetpoint(Setpoint):
     pass
 
+class VoltageSetpoint(Setpoint):
+    pass
+
 
 def update_actuator(setpoints, name, new):
     """
@@ -195,6 +198,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
     def publish(self, date):
         commands = {PositionSetpoint: 'actuator_position',
                     SpeedSetpoint: 'actuator_velocity',
+                    VoltageSetpoint: 'actuator_voltage',
                     TorqueSetpoint: 'actuator_torque'}
 
         for name, setpoint in self.trajectories.items():
