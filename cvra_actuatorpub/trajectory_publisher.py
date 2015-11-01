@@ -54,7 +54,7 @@ def update_actuator(setpoints, name, new):
     old = setpoints[name]
 
     if isinstance(old, WheelbaseTrajectory):
-        # If the old setpoint is a trajectory for the wheelbase, we can
+        # If the od setpoint is a trajectory for the wheelbase, we can
         # only merge it if the new trajectory is made for the wheelbase.
         if not isinstance(new, WheelbaseTrajectory):
             raise ValueError("Wheelbase can only updated with Wheelbase")
@@ -121,10 +121,15 @@ def trajectory_gc(trajectory, date):
 
 def trajectory_to_chunks(traj, chunk_length):
     TrajType = type(traj)
-    for i in range(0, len(traj.points), chunk_length):
-        yield TrajType(traj.start + float(traj.dt * i),
-                       traj.dt,
-                       traj.points[i:i+chunk_length])
+    for i in range(0, len(traj.points), chunk_length * 0.4):
+        if (i + chunk_length <= len(traj.points)):
+            yield TrajType(traj.start + float(traj.dt * i),
+                           traj.dt,
+                           traj.points[i:i+chunk_length])
+        else:
+            yield TrajType(traj.start + float(traj.dt * i),
+                           traj.dt,
+                           traj.points[i:])
 
 
 def trajectory_get_state(traj, date):
