@@ -9,7 +9,7 @@ WheelbaseTrajectoryPoint = namedtuple('WheelbaseTrajectoryPoint',
 WheelbaseTrajectory = namedtuple('WheelbaseTrajectory',
                                  ['start', 'dt', 'points'])
 TrajectoryPoint = namedtuple('TrajectoryPoint',
-                             ['position', 'speed', 'acceleration', 'torque'])
+                             ['position', 'velocity', 'acceleration', 'torque'])
 
 class Trajectory(namedtuple('Trajectory', ['start', 'dt', 'points'])):
     @classmethod
@@ -37,7 +37,7 @@ class PositionSetpoint(Setpoint):
     def to_trajectory_point(self):
         return TrajectoryPoint(self.value, 0, 0, 0)
 
-class SpeedSetpoint(Setpoint):
+class VelocitySetpoint(Setpoint):
     def to_trajectory_point(self):
         return TrajectoryPoint(0, self.value, 0, 0)
 
@@ -191,7 +191,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
 
     def publish(self, date):
         commands = {PositionSetpoint: 'actuator_position',
-                    SpeedSetpoint: 'actuator_velocity',
+                    VelocitySetpoint: 'actuator_velocity',
                     VoltageSetpoint: 'actuator_voltage',
                     TorqueSetpoint: 'actuator_torque'}
 
@@ -210,7 +210,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
                     chunk = next(chunks)
                     while chunk.start < date:
                         chunk = next(chunks)
-                    points = [[p.position, p.speed, p.acceleration, p.torque] for p in chunk.points]
+                    points = [[p.position, p.velocity, p.acceleration, p.torque] for p in chunk.points]
 
                     start_s = int(chunk.start)
                     start_us = int((chunk.start - start_s) * 1e6)

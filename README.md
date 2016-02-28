@@ -17,7 +17,7 @@ The various setpoints are immutable to make them easier to copy / share.
 * `Setpoint`: This is just the type used when one wants a fixed setpoint.
     Fields:
     - Value of the setpoint
-    This is a base class. User should rather use `PositionSetpoint`, `SpeedSetpoint, `TorqueSetpoint`.
+    This is a base class. User should rather use `PositionSetpoint`, `VelocitySetpoint`, `TorqueSetpoint`.
 
 * `Trajectory` is used to perform trajectories with an actuator (e.g. Debra's arms).
     Fields:

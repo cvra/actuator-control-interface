@@ -21,7 +21,7 @@ parser.add_argument('--actuator', '-a',  default='foobar2000',
 parser.add_argument('--negative', '-n', action='store_true')
 parser.add_argument('--create', '-c', action='store_true')
 parser.add_argument('--position', '-p', action='store_true')
-parser.add_argument('--speed', '-s', action='store_true')
+parser.add_argument('--velocity', '-v', action='store_true')
 parser.add_argument('--torque', '-t', action='store_true')
 
 args = parser.parse_args()
@@ -37,8 +37,8 @@ if args.negative:
 
 if args.position:
     pub.update_actuator(args.actuator, PositionSetpoint(sign*args.value))
-elif args.speed:
-    pub.update_actuator(args.actuator, SpeedSetpoint(sign*args.value))
+elif args.velocity:
+    pub.update_actuator(args.actuator, VelocitySetpoint(sign*args.value))
 elif args.torque:
     pub.update_actuator(args.actuator, TorqueSetpoint(sign*args.value))
 

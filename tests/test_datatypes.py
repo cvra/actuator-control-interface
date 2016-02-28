@@ -18,7 +18,7 @@ class WheelbaseTrajectoryTestCase(unittest.TestCase):
 class TrajectoryTestCase(unittest.TestCase):
     def test_can_create_trajectory(self):
         p = TrajectoryPoint(position=1.,
-                            speed=2.,
+                            velocity=2.,
                             torque=10.,
                             acceleration=42.
                             )
@@ -44,8 +44,8 @@ class TrajectoryTestCase(unittest.TestCase):
         pp = TrajectoryPoint(12, 0, 0, 0)
         self.check_trajectories_created_from_setpoints(p, pp)
 
-    def test_can_create_from_speed_setpoint(self):
-        p = SpeedSetpoint(12)
+    def test_can_create_from_velocity_setpoint(self):
+        p = VelocitySetpoint(12)
         pp = TrajectoryPoint(0, 12, 0, 0)
         self.check_trajectories_created_from_setpoints(p, pp)
 
@@ -58,7 +58,7 @@ class TrajectoryTestCase(unittest.TestCase):
 class SetpointTestCase(unittest.TestCase):
     def test_can_create(self):
         PositionSetpoint(12)
-        SpeedSetpoint(12)
+        VelocitySetpoint(12)
         TorqueSetpoint(12)
         VoltageSetpoint(12)
 

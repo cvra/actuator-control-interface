@@ -13,7 +13,7 @@ class TrajectoryTestingTestCase(unittest.TestCase):
 
     def test_trajectory_update_empy(self):
         trajectories = dict()
-        t = SpeedSetpoint(12.)
+        t = VelocitySetpoint(12.)
 
         update_actuator(trajectories, "foo", t)
         self.assertEqual(trajectories['foo'], t)
