@@ -36,8 +36,8 @@ pub = SimpleRPCActuatorPublisher((args.host, 20000))
 # pub.publish(time.time())
 
 DT = 0.01
-ACC = 0.1
-VEL = 1
+ACC = 10
+VEL = 4
 # [p.position, p.speed, p.acceleration, p.torque]
 
 points = []
@@ -61,6 +61,18 @@ while vel > 0:
     t += DT
     points.append(TrajectoryPoint(pos, vel, -ACC, 0))
 
+while vel > -VEL:
+    pos += vel * DT + 1/2 * -ACC * DT**2
+    vel += -ACC * DT
+    t += DT
+    points.append(TrajectoryPoint(pos, vel, -ACC, 0))
+
+while vel < 0:
+    pos += vel * DT - 1/2 * -ACC * DT**2
+    vel += ACC * DT
+    t += DT
+    points.append(TrajectoryPoint(pos, vel, ACC, 0))
+
 points.append(TrajectoryPoint(pos, 0, 0, 0))
 
 
@@ -69,11 +81,11 @@ print("\n".join(map(str, points)))
 # map(print, points)
 
 if input("go ? ") == 'y':
-    traj = Trajectory(start=time.time() - 1, dt=DT, points=tuple(points))
+    traj = Trajectory(start=time.time() - 2, dt=DT, points=tuple(points))
 
     pub.update_actuator(args.actuator, traj)
 
     while True:
         pub.publish(time.time())
         print(pub.get_state(args.actuator, time.time()))
-        time.sleep(0.1)
+        time.sleep(0.05)

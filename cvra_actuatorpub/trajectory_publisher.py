@@ -215,7 +215,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
             elif isinstance(setpoint, Trajectory):
                 # Convert the trajectory to chunks, then select the first one
                 # still in the future.
-                chunks = trajectory_to_chunks(setpoint, 10)
+                chunks = trajectory_to_chunks(setpoint, 30)
 
                 try:  # Send the trajectory if we are before the end of the trajectory.
                     chunk = next(chunks)
@@ -238,7 +238,7 @@ class SimpleRPCActuatorPublisher(ActuatorPublisher):
 
 
             elif isinstance(setpoint, WheelbaseTrajectory):
-                chunks = trajectory_to_chunks(setpoint, 10)
+                chunks = trajectory_to_chunks(setpoint, 30)
 
                 # If we are past the end of the trajectory, we should not send
                 # anything to the master board, which will stop the robot.
