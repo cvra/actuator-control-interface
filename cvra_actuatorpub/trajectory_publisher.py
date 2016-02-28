@@ -121,8 +121,8 @@ def trajectory_gc(trajectory, date):
 
 def trajectory_to_chunks(traj, chunk_length):
     TrajType = type(traj)
-    for i in range(0, len(traj.points), chunk_length * 0.4):
-        if (i + chunk_length <= len(traj.points)):
+    for i in range(0, len(traj.points), int(chunk_length * 0.4)):
+        if (i + chunk_length < len(traj.points)):
             yield TrajType(traj.start + float(traj.dt * i),
                            traj.dt,
                            traj.points[i:i+chunk_length])
