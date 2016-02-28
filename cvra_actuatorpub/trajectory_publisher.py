@@ -20,13 +20,22 @@ class Trajectory(namedtuple('Trajectory', ['start', 'dt', 'points'])):
 
         return cls(start=start, dt=dt, points=(point, ) * length)
 
+    def get_state(self, date):
+        index = round((date - self.start) / float(self.dt))
 
-Setpoint = namedtuple('Setpoint', ['value'])
+        # If past the last point, return last point
+        index = min(index, len(self.points) - 1)
+
+        return self.points[index]
+
+
+class Setpoint(namedtuple('Setpoint', ['value'])):
+    def get_state(self, date):
+        return self
 
 class PositionSetpoint(Setpoint):
     def to_trajectory_point(self):
         return TrajectoryPoint(self.value, 0, 0, 0)
-
 
 class SpeedSetpoint(Setpoint):
     def to_trajectory_point(self):
@@ -124,15 +133,6 @@ def trajectory_to_chunks(traj, chunk_length):
                        traj.points[i:i+chunk_length])
 
 
-def trajectory_get_state(traj, date):
-    index = round((date - traj.start) / float(traj.dt))
-
-    # If past the last point, return last point
-    index = min(index, len(traj.points) - 1)
-
-    return traj.points[index]
-
-
 class ActuatorPublisher:
     """
     This class encapsulates a trajectory collection (dict) in a thread safe
@@ -156,10 +156,7 @@ class ActuatorPublisher:
         with self.lock:
             traj = self.trajectories[name]
 
-        if isinstance(traj, Setpoint):
-            return traj
-
-        return trajectory_get_state(traj, date)
+        return traj.get_state(date)
 
     def gc(self, date):
         """
